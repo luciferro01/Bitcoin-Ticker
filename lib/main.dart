@@ -2,11 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'coin.dart';
 
-const apiKey = '41ACA103-11C3-44E2-A9A7-1C471BD8706B';
+// const apiKey = '41ACA103-11C3-44E2-A9A7-1C471BD8706B';
+const apiKey = '6252BADA-F482-40EF-BAD0-DA390813441E';
 void main() {
   runApp(
     const MyApp(),
@@ -33,28 +32,7 @@ class BitcoinTicker extends StatefulWidget {
 }
 
 class _BitcoinTickerState extends State<BitcoinTicker> {
-  // const BitcoinTicker({Key? key}) : super(key: key);
-
-  @override
-  void initState() {
-    super.initState();
-    getrates();
-  }
-
   String currency = 'USD';
-  late double rate = 845;
-
-  void getrates() async {
-    String url =
-        'https://rest.coinapi.io/v1/exchangerate/BTC/$currency?apiKey=$apiKey';
-
-    http.Response response = await http.get(Uri.parse(url));
-    var data = response.body;
-    var decodeData = jsonDecode(data);
-    // print(decodeData['rate']);
-    rate = await decodeData['rate'];
-  }
-
   String selectedCurrency = 'USD';
 
   DropdownButton androidPicker() {
@@ -75,23 +53,13 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
         setState(() {
           selectedCurrency = value!;
           currency = value;
-          getrates();
+          // Networking().getrates(currency);
+          // getrates();
+          // Networking(currency);
         });
       },
     );
   }
-
-  // List<DropdownMenuItem<String>> getDropdownItems() {List<DropdownMenuItem<String>> dropDownItems = [];
-  // for (var i in currenciesList) {
-  //   var newItem = DropdownMenuItem(
-  //     value: i,
-  //     child: Text(i),
-  //   );
-  //   dropDownItems.add(newItem);
-  // }
-  // return dropDownItems;
-
-  // }
 
   CupertinoPicker iosPicker() {
     List<Widget> pickerItems = [];
@@ -111,15 +79,6 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
     );
   }
 
-  // List<Widget> getPickerItems() {
-  //   List<Widget> pickerItems = [];
-  //   for (var i in currenciesList) {
-  //     var items = Text(i);
-  //     pickerItems.add(items);
-  //   }
-  //   return pickerItems;
-  // }
-
   dynamic picker() {
     if (Platform.isIOS) {
       return iosPicker();
@@ -127,6 +86,12 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
       return androidPicker();
     }
     // return iosPicker();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // getrates();
   }
 
   @override
@@ -156,7 +121,7 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'BTC ==  $selectedCurrency => ${rate.toStringAsFixed(4)}',
+                      'BTC ==  $selectedCurrency => ${currency}',
                       style: const TextStyle(fontSize: 20),
                     ),
                   ],
@@ -177,3 +142,26 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
     );
   }
 }
+
+  // List<DropdownMenuItem<String>> getDropdownItems() {List<DropdownMenuItem<String>> dropDownItems = [];
+  // for (var i in currenciesList) {
+  //   var newItem = DropdownMenuItem(
+  //     value: i,
+  //     child: Text(i),
+  //   );
+  //   dropDownItems.add(newItem);
+  // }
+  // return dropDownItems;
+
+  // }
+
+
+
+  // List<Widget> getPickerItems() {
+  //   List<Widget> pickerItems = [];
+  //   for (var i in currenciesList) {
+  //     var items = Text(i);
+  //     pickerItems.add(items);
+  //   }
+  //   return pickerItems;
+  // }

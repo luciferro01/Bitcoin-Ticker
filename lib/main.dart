@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
 import 'coin.dart';
+import 'resuable_cards.dart';
 
 // const apiKey = '41ACA103-11C3-44E2-A9A7-1C471BD8706B';
 const apiKey = '6252BADA-F482-40EF-BAD0-DA390813441E';
@@ -34,6 +35,30 @@ class BitcoinTicker extends StatefulWidget {
 class _BitcoinTickerState extends State<BitcoinTicker> {
   String currency = 'USD';
   String selectedCurrency = 'USD';
+  String crypto = 'BTC';
+  List<ResuableCard> cardString = [];
+  CoinData coinData = CoinData();
+  List<double> targetPrice = [];
+
+  Future<void> updatePrice() async {
+    List<double> ListofTargetPrice = await coinData.updateTargetPrice(currency);
+    setState(() {
+      targetPrice = ListofTargetPrice;
+    });
+  }
+
+  List<ResuableCard> getCards() {
+    cardString = [];
+    for (int i = 0; i < cryptoList.length; i++) {
+      ResuableCard cryptoCard = ResuableCard(
+        currency: targetPrice[i],
+        selectedCurrency: selectedCurrency,
+        crypto: cryptoList[i],
+      );
+      cardString.add(cryptoCard);
+    }
+    return cardString;
+  }
 
   DropdownButton androidPicker() {
     List<DropdownMenuItem<String>> dropDownItems = [];
@@ -48,8 +73,9 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
     return DropdownButton<String>(
       value: selectedCurrency,
       items: dropDownItems,
-      onChanged: (value) {
+      onChanged: (value) async {
         // print(value);
+        await updatePrice();
         setState(() {
           selectedCurrency = value!;
           currency = value;
@@ -68,12 +94,18 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
       pickerItems.add(items);
     }
     return CupertinoPicker(
-      // backgroundColor: Colors.blueAccent,
+      backgroundColor: Colors.blueAccent,
       magnification: 1.1,
       looping: true,
       itemExtent: 32.0,
-      onSelectedItemChanged: (value) {
-        print(value);
+      onSelectedItemChanged: (value) async {
+        // print(value);
+        currency = currenciesList[value];
+        selectedCurrency = currenciesList[value];
+        await updatePrice();
+        // setState(() {
+        //   // currency =
+        // });
       },
       children: pickerItems,
     );
@@ -91,7 +123,10 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
   @override
   void initState() {
     super.initState();
-    // getrates();
+    updatePrice();
+    for (var i = 0; i < cryptoList.length; i++) {
+      targetPrice.add(0);
+    }
   }
 
   @override
@@ -99,7 +134,7 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Bitcoin Ticker',
+          '🤑 Bitcoin Ticker',
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -111,22 +146,8 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
-              shadowColor: Colors.red,
-              elevation: 6,
-              margin: const EdgeInsets.all(20),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'BTC ==  $selectedCurrency => ${currency}',
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                  ],
-                ),
-              ),
+            Column(
+              children: getCards(),
             ),
             Container(
               height: 150.0,
@@ -134,7 +155,8 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
               padding: const EdgeInsets.only(bottom: 30.0),
               color: Colors.blueAccent,
               // child: androidPicker(),
-              child: picker(),
+              // child: picker(),
+              child: iosPicker(),
             )
           ],
         ),
@@ -143,25 +165,23 @@ class _BitcoinTickerState extends State<BitcoinTicker> {
   }
 }
 
-  // List<DropdownMenuItem<String>> getDropdownItems() {List<DropdownMenuItem<String>> dropDownItems = [];
-  // for (var i in currenciesList) {
-  //   var newItem = DropdownMenuItem(
-  //     value: i,
-  //     child: Text(i),
-  //   );
-  //   dropDownItems.add(newItem);
-  // }
-  // return dropDownItems;
+// List<DropdownMenuItem<String>> getDropdownItems() {List<DropdownMenuItem<String>> dropDownItems = [];
+// for (var i in currenciesList) {
+//   var newItem = DropdownMenuItem(
+//     value: i,
+//     child: Text(i),
+//   );
+//   dropDownItems.add(newItem);
+// }
+// return dropDownItems;
 
-  // }
+// }
 
-
-
-  // List<Widget> getPickerItems() {
-  //   List<Widget> pickerItems = [];
-  //   for (var i in currenciesList) {
-  //     var items = Text(i);
-  //     pickerItems.add(items);
-  //   }
-  //   return pickerItems;
-  // }
+// List<Widget> getPickerItems() {
+//   List<Widget> pickerItems = [];
+//   for (var i in currenciesList) {
+//     var items = Text(i);
+//     pickerItems.add(items);
+//   }
+//   return pickerItems;
+// }
